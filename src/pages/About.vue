@@ -13,11 +13,11 @@
       <p>To revolutionize the industry by offering innovative solutions that make life easier.</p>
 
       <h2>Our Values</h2>
-   <!--    <ul>
+      <ul>
         <li>🔹 Integrity</li>
         <li>🔹 Customer Satisfaction</li>
         <li>🔹 Innovation</li>
-      </ul> -->
+      </ul>
 
       <img src="https://via.placeholder.com/600x300" alt="About Us Image">
     </section>
