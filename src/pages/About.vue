@@ -4,7 +4,7 @@
       <h1>About Us</h1>
       <p>Learn more about our journey and values.</p>
     </header>
-
+<!-- 
     <section class="content">
       <h2>Who Are We?</h2>
       <p>We are a team of passionate individuals dedicated to providing top-notch services.</p>
@@ -19,8 +19,7 @@
         <li>🔹 Innovation</li>
       </ul>
 
-      <img src="https://via.placeholder.com/600x300" alt="About Us Image">
-    </section>
+    </section> -->
 
     <footer>
       <p>&copy; 2025 Our Company. All rights reserved.</p>
