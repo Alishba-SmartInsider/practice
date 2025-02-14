@@ -19,6 +19,11 @@ const router = createRouter({
   routes,
 });
 
+const accessRules = {
+  "www.smartinsider.com": ["/contact"],
+  localhost: ["/main", "/about"],
+};
+
 // ✅ Function to detect the embedding website
 function getEmbeddingWebsite() {
   console.log("📢 Referrer:", document.referrer); // Debugging
