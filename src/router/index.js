@@ -3,7 +3,7 @@ import Main from "../pages/Main.vue";
 import Home from "../pages/Home.vue";
 import About from "../pages/About.vue";
 import Contact from "../pages/Contact.vue";
-import AccessDenied from '../pages/AccessDenied.vue'
+import AccessDenied from '../pages/AccessDenied.vue';
 
 const routes = [
   { path: "/", redirect: "/main" },
@@ -11,7 +11,7 @@ const routes = [
   { path: "/home", component: Home },
   { path: "/about", component: About },
   { path: "/contact", component: Contact },
-  { path: "/access-denied", component: 'AccessDenied'}
+  { path: "/access-denied", component: AccessDenied } // ✅ Corrected component reference
 ];
 
 const router = createRouter({
@@ -19,9 +19,10 @@ const router = createRouter({
   routes,
 });
 
+// ✅ Define page access rules per website
 const accessRules = {
-  "www.smartinsider.com": ["/contact"],
-  localhost: ["/main", "/about"],
+  "www.smartinsider.com": ["/contact"], // Only allowed to access /contact
+  "localhost": ["/main", "/about"], // Allowed pages for localhost
 };
 
 // ✅ Function to detect the embedding website
@@ -36,13 +37,13 @@ function getEmbeddingWebsite() {
       return null;
     }
   }
-
   return null; // No referrer detected
 }
+
 router.beforeEach((to, from, next) => {
   console.log("🔄 Navigation triggered:", to.path);
 
-  if (window !== window.parent) {
+  if (window !== window.parent) { // Inside iframe
     const embeddingWebsite = getEmbeddingWebsite();
     console.log("🔍 Detected embedding website:", embeddingWebsite);
 
@@ -51,23 +52,24 @@ router.beforeEach((to, from, next) => {
 
       if (allowedPages.includes("*") || allowedPages.includes(to.path)) {
         console.log(`✅ Allowed: ${embeddingWebsite} can access ${to.path}`);
-        
+
         // Save the first allowed page for redirect purposes
         localStorage.setItem("allowedPage", allowedPages[0]);
 
         next();
       } else {
         console.warn(`❌ Blocked: ${embeddingWebsite} cannot access ${to.path}`);
-        next("/denied"); // Redirect to the new Access Denied page
+        next("/access-denied"); // ✅ Redirect to the corrected Access Denied page
       }
     } else {
       console.warn(`❌ Unauthorized embedding: ${embeddingWebsite}`);
-      next("/denied");
+      next("/access-denied");
     }
   } else {
     next(); // Allow normal navigation outside iframe
   }
 });
+
 
 // router.beforeEach((to, from, next) => {
 //   console.log("🔄 Navigation triggered: Trying to go to", to.path);
