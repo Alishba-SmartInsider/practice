@@ -4,7 +4,6 @@ import Home from "../pages/Home.vue";
 import About from "../pages/About.vue";
 import Contact from "../pages/Contact.vue";
 import AccessDenied from '../pages/AccessDenied.vue'
-import { useRouter } from 'vue-router';
 
 const routes = [
   { path: "/", redirect: "/main" },
@@ -41,8 +40,6 @@ const accessRules = {
   "www.smartinsider.com": ["/contact"], // Only allowed to access /contact
   "localhost": ["/main", "/about"], // Allowed pages for localhost
 };
-
-const router = useRouter(); // Initialize the router
 
 let initialAllowedPage = null; // Store the first allowed page
 
