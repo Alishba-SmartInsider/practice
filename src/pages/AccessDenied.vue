@@ -1,38 +1,28 @@
-<!-- pages/AccessDenied.vue -->
+
 <template>
-  <div class="access-denied">
-    <h1 style="color: red">Access Denied</h1>
-    <p>You don't have permission to access this page.</p>
-    <button @click="redirectToAllowedPage">Go to Allowed Page</button>
+  <div style="text-align: center; padding: 20px;">
+    <h1 style="color: red">{{ message || 'Access Denied' }}</h1>
+    <p v-if="!message">You don't have permission to access this page.</p>
+    <button v-if="redirect" @click="goToAllowedPage" style="padding: 10px; font-size: 16px;">Go to Allowed Page</button>
   </div>
 </template>
 
 <script>
-import { useRouter, useRoute } from "vue-router";
+import { useRouter, useRoute } from 'vue-router';
+import { ref } from 'vue';
 
 export default {
   setup() {
     const router = useRouter();
     const route = useRoute();
-    
-    const redirectToAllowedPage = () => {
-      const fallbackPage = route.query.fallback || "/";
-      router.push(fallbackPage);
+    const redirect = ref(route.query.redirect);
+    const message = ref(route.query.message);
+
+    const goToAllowedPage = () => {
+      router.push(redirect.value);
     };
 
-    return { redirectToAllowedPage };
+    return { redirect, message, goToAllowedPage };
   },
 };
 </script>
-
-<style scoped>
-.access-denied {
-  text-align: center;
-  padding: 20px;
-}
-button {
-  padding: 10px;
-  font-size: 16px;
-  cursor: pointer;
-}
-</style>

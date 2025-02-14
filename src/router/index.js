@@ -3,6 +3,8 @@ import Main from "../pages/Main.vue";
 import Home from "../pages/Home.vue";
 import About from "../pages/About.vue";
 import Contact from "../pages/Contact.vue";
+import AccessDenied from '../pages/AccessDenied.vue'
+import { useRouter } from 'vue-router';
 
 const routes = [
   { path: "/", redirect: "/main" },
@@ -10,6 +12,7 @@ const routes = [
   { path: "/home", component: Home },
   { path: "/about", component: About },
   { path: "/contact", component: Contact },
+  { path: "/access-denied", component: 'AccessDenied'}
 ];
 
 const router = createRouter({
@@ -39,53 +42,85 @@ const accessRules = {
   "localhost": ["/main", "/about"], // Allowed pages for localhost
 };
 
+const router = useRouter(); // Initialize the router
+
+let initialAllowedPage = null; // Store the first allowed page
+
 router.beforeEach((to, from, next) => {
-  console.log("🔄 Navigation triggered: Trying to go to", to.path);
+  const embeddingWebsite = getEmbeddingWebsite();
 
-  if (window !== window.parent) {
-    const embeddingWebsite = getEmbeddingWebsite();
-    console.log("🔍 Detected embedding website:", embeddingWebsite);
-
+  if (window !== window.parent) { // Inside iframe
     if (embeddingWebsite && accessRules[embeddingWebsite]) {
       const allowedPages = accessRules[embeddingWebsite];
 
       if (allowedPages.includes("*") || allowedPages.includes(to.path)) {
-        console.log(`✅ Allowed: ${embeddingWebsite} can access ${to.path}`);
-        next();
+        if (initialAllowedPage === null) {
+          initialAllowedPage = allowedPages.includes("*") ? "/" : (allowedPages.length > 0 ? allowedPages[0] : "/"); // Set initial page
+        }
+        next(); // Allow
       } else {
         console.warn(`❌ Blocked: ${embeddingWebsite} cannot access ${to.path}`);
 
-        // Get the first allowed page for this website
-        const fallbackPage = allowedPages.length > 0 ? allowedPages[0] : "/";
+        // Redirect to a dedicated "Access Denied" page
+        next({ name: 'AccessDenied', query: { redirect: initialAllowedPage || '/' } }); // Pass redirect path as query parameter
 
-        // Display "Access Denied" message with a button to move to an allowed page
-        document.body.innerHTML = `
-          <div style="text-align: center; padding: 20px;">
-            <h1 style="color: red">Access Denied</h1>
-            <p>You don't have permission to access this page.</p>
-            <button id="goToAllowedPage" style="padding: 10px; font-size: 16px;">Go to Allowed Page</button>
-          </div>
-        `;
-
-        // Handle button click properly
-        document.getElementById("goToAllowedPage").addEventListener("click", () => {
-          window.location.replace(fallbackPage); // ✅ This ensures proper page reload
-        });
       }
     } else {
       console.warn(`❌ Unauthorized embedding: ${embeddingWebsite}`);
-
-      document.body.innerHTML = `
-        <div style="text-align: center;">
-          <h1 style="color: red">Access Denied</h1>
-          <p>This website is not authorized to embed this page.</p>
-        </div>
-      `;
+      next({ name: 'AccessDenied', query: { message: 'This website is not authorized to embed this page.' } });
     }
   } else {
-    next(); // Allow normal navigation outside iframe
+    next(); // Outside iframe
   }
 });
+
+// router.beforeEach((to, from, next) => {
+//   console.log("🔄 Navigation triggered: Trying to go to", to.path);
+
+//   if (window !== window.parent) {
+//     const embeddingWebsite = getEmbeddingWebsite();
+//     console.log("🔍 Detected embedding website:", embeddingWebsite);
+
+//     if (embeddingWebsite && accessRules[embeddingWebsite]) {
+//       const allowedPages = accessRules[embeddingWebsite];
+
+//       if (allowedPages.includes("*") || allowedPages.includes(to.path)) {
+//         console.log(`✅ Allowed: ${embeddingWebsite} can access ${to.path}`);
+//         next();
+//       } else {
+//         console.warn(`❌ Blocked: ${embeddingWebsite} cannot access ${to.path}`);
+
+//         // Get the first allowed page for this website
+//         const fallbackPage = allowedPages.length > 0 ? allowedPages[0] : "/";
+
+//         // Display "Access Denied" message with a button to move to an allowed page
+//         document.body.innerHTML = `
+//           <div style="text-align: center; padding: 20px;">
+//             <h1 style="color: red">Access Denied</h1>
+//             <p>You don't have permission to access this page.</p>
+//             <button id="goToAllowedPage" style="padding: 10px; font-size: 16px;">Go to Allowed Page</button>
+//           </div>
+//         `;
+
+//         // Handle button click properly
+//         document.getElementById("goToAllowedPage").addEventListener("click", () => {
+//           window.location.replace(fallbackPage); // ✅ This ensures proper page reload
+//         });
+//       }
+//     } else {
+//       console.warn(`❌ Unauthorized embedding: ${embeddingWebsite}`);
+
+//       document.body.innerHTML = `
+//         <div style="text-align: center;">
+//           <h1 style="color: red">Access Denied</h1>
+//           <p>This website is not authorized to embed this page.</p>
+//         </div>
+//       `;
+//     }
+//   } else {
+//     next(); // Allow normal navigation outside iframe
+//   }
+// });
 
 
 // router.beforeEach((to, from, next) => {
