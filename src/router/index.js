@@ -55,18 +55,19 @@ router.beforeEach((to, from, next) => {
 
     if (embeddingWebsite && accessRules[embeddingWebsite]) {
       const allowedPages = accessRules[embeddingWebsite];
+      const fallbackPage = allowedPages[0] || "/";
 
       if (allowedPages.includes("*") || allowedPages.includes(to.path)) {
         console.log(`✅ Allowed: ${embeddingWebsite} can access ${to.path}`);
-        localStorage.setItem("allowedPage", allowedPages[0]);
+        localStorage.setItem("allowedPage", fallbackPage);
         next();
       } else {
         console.warn(`❌ Blocked: ${embeddingWebsite} cannot access ${to.path}`);
-        next("/access-denied");
+        next({ path: "/access-denied", query: { redirect: fallbackPage } });
       }
     } else {
       console.warn(`❌ Unauthorized embedding: ${embeddingWebsite}`);
-      next("/access-denied");
+      next({ path: "/access-denied", query: { message: "Unauthorized embedding" } });
     }
   } else {
     next();

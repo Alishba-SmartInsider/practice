@@ -9,14 +9,16 @@
 </template>
 
 <script>
-import { useRouter } from "vue-router";
+import { useRouter, useRoute } from "vue-router";
 
 export default {
   setup() {
     const router = useRouter();
+    const route = useRoute();
 
     const goToAllowedPage = () => {
-      const fallbackPage = localStorage.getItem("allowedPage") || "/"; // Retrieve from localStorage
+      // Use the 'redirect' query parameter; if not available, fallback to localStorage or "/"
+      const fallbackPage = route.query.redirect || localStorage.getItem("allowedPage") || "/";
       router.push(fallbackPage);
     };
 
