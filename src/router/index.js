@@ -22,7 +22,7 @@ const router = createRouter({
 // ✅ Define page access rules per website
 const accessRules = {
   "www.smartinsider.com": ["/contact"], // Only allowed to access /contact
-  // "localhost": ["/main", "/about"], // Allowed pages for localhost
+  "localhost": ["/main", "/about"], // Allowed pages for localhost
    "*": ["/access-denied"],
 };
 
