@@ -22,7 +22,7 @@ const router = createRouter({
 // ✅ Define page access rules per website
 const accessRules = {
   "www.smartinsider.com": ["/contact"], // Only allowed to access /contact
-  "localhost": ["/main", "/about"], // Allowed pages for localhost
+  // "localhost": ["/main", "/about"], // Allowed pages for localhost
    "*": ["/access-denied"],
 };
 
@@ -73,5 +73,31 @@ router.beforeEach((to, from, next) => {
     next();
   }
 });
+
+
+// router.beforeEach((to, from, next) => {
+//   if (to.path === "/access-denied") {
+//     return next();
+//   }
+//   if (window !== window.parent) {
+//     const embeddingWebsite = getEmbeddingWebsite();
+
+//     if (embeddingWebsite && accessRules[embeddingWebsite]) {
+//       const allowedPages = accessRules[embeddingWebsite];
+//       const fallbackPage = allowedPages[0] || "/";
+
+//       if (allowedPages.includes("*") || allowedPages.includes(to.path)) {
+//         localStorage.setItem("allowedPage", fallbackPage);
+//         next();
+//       } else {
+//         next({ path: "/access-denied", query: { redirect: fallbackPage } });
+//       }
+//     } else {
+//       next({ path: "/access-denied"});
+//     }
+//   } else {
+//     next();
+//   }
+// });
 
 export default router;
