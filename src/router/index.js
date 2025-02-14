@@ -23,6 +23,7 @@ const router = createRouter({
 const accessRules = {
   "www.smartinsider.com": ["/contact"], // Only allowed to access /contact
   "localhost": ["/main", "/about"], // Allowed pages for localhost
+   "*": ["/access-denied"],
 };
 
 // ✅ Function to detect the embedding website
@@ -43,7 +44,12 @@ function getEmbeddingWebsite() {
 router.beforeEach((to, from, next) => {
   console.log("🔄 Navigation triggered:", to.path);
 
-  if (window !== window.parent) { // Inside iframe
+  if (to.path === "/access-denied") {
+    console.log("🟢 Access Denied page is always allowed.");
+    return next();
+  }
+
+  if (window !== window.parent) {
     const embeddingWebsite = getEmbeddingWebsite();
     console.log("🔍 Detected embedding website:", embeddingWebsite);
 
@@ -52,23 +58,21 @@ router.beforeEach((to, from, next) => {
 
       if (allowedPages.includes("*") || allowedPages.includes(to.path)) {
         console.log(`✅ Allowed: ${embeddingWebsite} can access ${to.path}`);
-
-        // Save the first allowed page for redirect purposes
         localStorage.setItem("allowedPage", allowedPages[0]);
-
         next();
       } else {
         console.warn(`❌ Blocked: ${embeddingWebsite} cannot access ${to.path}`);
-        next("/access-denied"); // ✅ Redirect to the corrected Access Denied page
+        next("/access-denied");
       }
     } else {
       console.warn(`❌ Unauthorized embedding: ${embeddingWebsite}`);
       next("/access-denied");
     }
   } else {
-    next(); // Allow normal navigation outside iframe
+    next();
   }
 });
+
 
 
 // router.beforeEach((to, from, next) => {
