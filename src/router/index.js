@@ -34,40 +34,33 @@ function getEmbeddingWebsite() {
 
   return null; // No referrer detected
 }
-
-// ✅ Define page access rules per website
-const accessRules = {
-  "www.smartinsider.com": ["/contact"], // Only allowed to access /contact
-  "localhost": ["/main", "/about"], // Allowed pages for localhost
-};
-
-let initialAllowedPage = null; // Store the first allowed page
-
 router.beforeEach((to, from, next) => {
-  const embeddingWebsite = getEmbeddingWebsite();
+  console.log("🔄 Navigation triggered:", to.path);
 
-  if (window !== window.parent) { // Inside iframe
+  if (window !== window.parent) {
+    const embeddingWebsite = getEmbeddingWebsite();
+    console.log("🔍 Detected embedding website:", embeddingWebsite);
+
     if (embeddingWebsite && accessRules[embeddingWebsite]) {
       const allowedPages = accessRules[embeddingWebsite];
 
       if (allowedPages.includes("*") || allowedPages.includes(to.path)) {
-        if (initialAllowedPage === null) {
-          initialAllowedPage = allowedPages.includes("*") ? "/" : (allowedPages.length > 0 ? allowedPages[0] : "/"); // Set initial page
-        }
-        next(); // Allow
+        console.log(`✅ Allowed: ${embeddingWebsite} can access ${to.path}`);
+        
+        // Save the first allowed page for redirect purposes
+        localStorage.setItem("allowedPage", allowedPages[0]);
+
+        next();
       } else {
         console.warn(`❌ Blocked: ${embeddingWebsite} cannot access ${to.path}`);
-
-        // Redirect to a dedicated "Access Denied" page
-        next({ name: 'AccessDenied', query: { redirect: initialAllowedPage || '/' } }); // Pass redirect path as query parameter
-
+        next("/denied"); // Redirect to the new Access Denied page
       }
     } else {
       console.warn(`❌ Unauthorized embedding: ${embeddingWebsite}`);
-      next({ name: 'AccessDenied', query: { message: 'This website is not authorized to embed this page.' } });
+      next("/denied");
     }
   } else {
-    next(); // Outside iframe
+    next(); // Allow normal navigation outside iframe
   }
 });
 
