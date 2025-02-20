@@ -1,2 +1,2 @@
 /* 
-Content-Security-Policy: frame-ancestors 'self' https://www.smartinsider.com http://localhost:5173;
+Content-Security-Policy: frame-ancestors 'self' https://www.smartinsider.com http://localhost:5175;
